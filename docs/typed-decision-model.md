@@ -239,10 +239,17 @@ torch 路径还有一层加速：`read_batch()`（`torch_backend.py:231`）把�
 实例 ① 走完整六步（输入 → 标记 id → prompt → 分词与读位置 → 前向与掩码 → 结果）；实例 ② 只走
 **与 ① 不同的那几步**（提示词、两步读、结果），其余步骤逐字相同。
 
-数据来源：分词与 token id 由 `Qwen/Qwen3.5-9B` 的分词器实跑得到（本地缓存 revision
-`c202236235762e1c871ad0ccb60c8ee5ba337b9a`，与 `server.py` 的 `ryotide-qwen9` preset 同一版）；
-概率来自这两条记录在 `results/jevbench/many-gemma-default/results.jsonl` 中的真实记录
-（Gemma 4 E4B MLX 8-bit）。
+数据来源：
+
+- **分词与 token id** 由 `Qwen/Qwen3.5-9B` 的分词器实跑得到（本地缓存 revision
+  `c202236235762e1c871ad0ccb60c8ee5ba337b9a`，与 `server.py` 的 `ryotide-qwen9` preset 同一版；
+  离线加载，`local_files_only=True`，无网络）。复现时需显式指定带 `transformers` 的解释器
+  （例如 `/opt/anaconda3/bin/python3`），裸 `python3` 可能落到没有该库的环境。
+- **概率** 读自这两条记录在 `results/jevbench/many-gemma-default/results.jsonl` 中的**已存盘结果**
+  （Gemma 4 E4B MLX 8-bit），不是本次重新前向得到的。该 run 覆盖 157/180 条（`many_k151` 仅 7/30），
+  且 results 文件不记录输入文件名，所以这里只声称「这两条记录的结果如此」，**不**声称该 run 跑的是
+  `many-options-v1.jsonl`。这两个 `task_id` 也出现在 `many-options-short.jsonl` /
+  `many-options-mid.jsonl`，但同 id 记录的内容逐字段相同，因此数值的归属没有歧义。
 
 ### 实例 ①：`many-k020-000`，20 个选项（≤ 26 → 字母路径）
 
